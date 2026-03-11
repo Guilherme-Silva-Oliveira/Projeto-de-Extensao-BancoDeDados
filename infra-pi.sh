@@ -4,6 +4,10 @@ CHAVE_WEB="key-web"
 CHAVE_DB="key-db"
 CHAVE_API="key-api"
 
+CIDR_VPC="10.0.0.0/26"
+CIDR_SUBNET_PUBL="10.0.0.0/27"
+CIDR_SUBNET_PRIV="10.0.0.32/27"
+
 IMAGEM_EC2="ami-0360c520857e3138f"
 
 ##### Criacao da Vpc de Subnets #####
@@ -11,14 +15,14 @@ IMAGEM_EC2="ami-0360c520857e3138f"
 echo "Criando VPC..."
 VPC_ID=$(aws ec2 create-vpc \
             --tag-specifications "ResourceType=vpc,Tags=[{Key=Name,Value=vpc-01}]" \
-            --cidr-block "10.0.0.0/26" \
+            --cidr-block "$CIDR_VPC" \
             --query "Vpc.VpcId" \
             --output "text") 
 
 echo "Criando subnet publica..."
 SUBNET_PUBL_ID=$(aws ec2 create-subnet \
                 --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=subnet-publica}]" \
-                --cidr-block "10.0.0.0/27" \
+                --cidr-block "$CIDR_SUBNET_PUBL" \
                 --vpc-id "$VPC_ID" \
                 --query "Subnet.SubnetId" \
                 --output "text")
@@ -26,7 +30,7 @@ SUBNET_PUBL_ID=$(aws ec2 create-subnet \
 echo "Criando subnet privada..."
 SUBNET_PRIV_ID=$(aws ec2 create-subnet \
                 --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=subnet-privada}]" \
-                --cidr-block "10.0.0.32/27" \
+                --cidr-block "$CIDR_SUBNET_PRIV" \
                 --vpc-id "$VPC_ID" \
                 --query "Subnet.SubnetId" \
                 --output "text")
@@ -81,26 +85,50 @@ fi
 
 ##### Criacao das ec2 #####
 
-echo "Criando grupo de segurança"
-SG_ID=$(aws ec2 create-security-group \
+echo "Criando grupos de segurança..."
+SG_SSH_PUBL_ID=$(aws ec2 create-security-group \
     --vpc-id "$VPC_ID" \
-    --group-name "grupo-seguranca-web" \
+    --group-name "grupo-seguranca-ssh-publico" \
     --description "created $(date +%F)" \
-    --tag-specifications "ResourceType=security-group,Tags=[{Key=Name,Value=sg-01}]" \
+    --tag-specifications "ResourceType=security-group,Tags=[{Key=Name,Value=sg00}]" \
     --query "GroupId" \
     --output text)
-
 aws ec2 authorize-security-group-ingress \
-    --group-id "$SG_ID" \
+    --group-id "$SG_SSH_PUBL_ID" \
     --no-cli-pager \
     --ip-permissions \
-    IpProtocol=tcp,FromPort=8080,ToPort=8080,IpRanges='[{CidrIp=0.0.0.0/0}]' \
-    IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges='[{CidrIp=0.0.0.0/0}]'
+    IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges="[{CidrIp=0.0.0.0/0}]"
+
+SG_SSH_PRIV_ID=$(aws ec2 create-security-group \
+    --vpc-id "$VPC_ID" \
+    --group-name "grupo-seguranca-ssh-privado" \
+    --description "created $(date +%F)" \
+    --tag-specifications "ResourceType=security-group,Tags=[{Key=Name,Value=sg01}]" \
+    --query "GroupId" \
+    --output text)
+aws ec2 authorize-security-group-ingress \
+    --group-id "$SG_SSH_PRIV_ID" \
+    --no-cli-pager \
+    --ip-permissions \
+    IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges="[{CidrIp=$SUBNET_PUBL_ID}]"
+
+SG_TCP=$(aws ec2 create-security-group \
+    --vpc-id "$VPC_ID" \
+    --group-name "grupo-seguranca-tcp" \
+    --description "created $(date +%F)" \
+    --tag-specifications "ResourceType=security-group,Tags=[{Key=Name,Value=sg02}]" \
+    --query "GroupId" \
+    --output text)
+aws ec2 authorize-security-group-ingress \
+    --group-id "$SG_TCP" \
+    --no-cli-pager \
+    --ip-permissions \
+    IpProtocol=tcp,FromPort=8080,ToPort=8080,IpRanges="[{CidrIp=0.0.0.0/0}]"
 
 # servidor publico
 EXISTE_WEB=$(aws ec2 describe-instances \
     --filters "Name=tag:Name,Values=serv-web" \
-    --query 'Reservations[*].Instances[*].InstanceId' \
+    --query "Reservations[*].Instances[*].InstanceId" \
     --output text)
 if [ -z "$EXISTE_WEB" ]; then
 echo "Criando servidor web..."
@@ -111,7 +139,7 @@ aws ec2 run-instances \
     --subnet-id "$SUBNET_PUBL_ID" \
     --key-name "$CHAVE_WEB" \
     --associate-public-ip-address \
-    --security-group-ids "$SG_ID" \
+    --security-group-ids "$SG_SSH_PUBL_ID" "$SG_TCP" \
     --no-cli-pager
 else
     echo "Servidor web já existe!"
@@ -120,7 +148,7 @@ fi
 # servidor api
 EXISTE_API=$(aws ec2 describe-instances \
     --filters "Name=tag:Name,Values=serv-api" \
-    --query 'Reservations[*].Instances[*].InstanceId' \
+    --query "Reservations[*].Instances[*].InstanceId" \
     --output text)
 if [ -z "$EXISTE_API" ]; then
 echo "Criando servidor api..."
@@ -131,6 +159,7 @@ aws ec2 run-instances \
     --subnet-id "$SUBNET_PRIV_ID" \
     --key-name "$CHAVE_API" \
     --no-associate-public-ip-address \
+    --security-group-ids "$SG_SSH_PRIV_ID" \
     --no-cli-pager
 else
     echo "Servidor api já existe!"
@@ -139,7 +168,7 @@ fi
 # servidor banco de dados
 EXISTE_DB=$(aws ec2 describe-instances \
     --filters "Name=tag:Name,Values=serv-db" \
-    --query 'Reservations[*].Instances[*].InstanceId' \
+    --query "Reservations[*].Instances[*].InstanceId" \
     --output text)
 if [ -z "$EXISTE_DB" ]; then
 echo "Criando servidor db..."
@@ -150,6 +179,7 @@ aws ec2 run-instances \
     --subnet-id "$SUBNET_PRIV_ID" \
     --key-name "$CHAVE_DB" \
     --no-associate-public-ip-address \
+    --security-group-ids "$SG_SSH_PRIV_ID" \
     --no-cli-pager
 else
     echo "Servidor db já existe!"
@@ -172,7 +202,7 @@ echo "Criando route table publica..."
 RTB_PUBL_ID=$(aws ec2 create-route-table \
     --tag-specifications "ResourceType=route-table,Tags=[{Key=Name,Value=rt-publica}]" \
     --vpc-id "$VPC_ID" \
-    --query 'RouteTable.RouteTableId' \
+    --query "RouteTable.RouteTableId" \
     --output text)
 
 echo "Associando route table a subnet publica..."
@@ -197,7 +227,7 @@ echo "Criando nat gateawy..."
 NAT_GW_ID=$(aws ec2 create-nat-gateway \
     --subnet-id "$SUBNET_PUBL_ID" \
     --allocation-id "$ALLOC_ID" \
-    --query 'NatGateway.NatGatewayId' \
+    --query "NatGateway.NatGatewayId" \
     --output text)
 
 ##### Criando route table privada #####
@@ -206,7 +236,7 @@ echo "Criando route table privada..."
 RTB_PRIV_ID=$(aws ec2 create-route-table \
     --tag-specifications "ResourceType=route-table,Tags=[{Key=Name,Value=rt-privada}]" \
     --vpc-id "$VPC_ID" \
-    --query 'RouteTable.RouteTableId' \
+    --query "RouteTable.RouteTableId" \
     --output text)
 
 echo "Associando route table a subnet privada..."
