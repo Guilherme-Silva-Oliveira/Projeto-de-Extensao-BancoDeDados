@@ -8,82 +8,89 @@ CIDR_VPC="10.0.0.0/26"
 CIDR_SUBNET_PUBL="10.0.0.0/27"
 CIDR_SUBNET_PRIV="10.0.0.32/27"
 
+NOME_VPC="vpc-01"
+NOME_SUBNET_PUBL="subnet-publica"
+NOME_SUBNET_PRIV="subnet-privada"
+
 IMAGEM_EC2="ami-0360c520857e3138f"
 
 ##### Criacao da Vpc de Subnets #####
 
-echo "Criando VPC..."
-VPC_ID=$(aws ec2 create-vpc \
-            --tag-specifications "ResourceType=vpc,Tags=[{Key=Name,Value=vpc-01}]" \
-            --cidr-block "$CIDR_VPC" \
-            --query "Vpc.VpcId" \
-            --output "text") 
+existe_vpc() {
+    aws ec2 describe-vpcs --filters "Name=tag:Name,Values=$NOME_VPC" --query "Vpcs[*].VpcId" --output text
+}
 
-echo "Criando subnet publica..."
-SUBNET_PUBL_ID=$(aws ec2 create-subnet \
-                --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=subnet-publica}]" \
-                --cidr-block "$CIDR_SUBNET_PUBL" \
-                --vpc-id "$VPC_ID" \
-                --query "Subnet.SubnetId" \
-                --output "text")
+existe_subnet() {
+    aws ec2 describe-subnets --filters "Name=tag:Name,Values=$1" --query "Subnets[*].SubnetId" --output text
+}
 
-echo "Criando subnet privada..."
-SUBNET_PRIV_ID=$(aws ec2 create-subnet \
-                --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=subnet-privada}]" \
-                --cidr-block "$CIDR_SUBNET_PRIV" \
-                --vpc-id "$VPC_ID" \
-                --query "Subnet.SubnetId" \
-                --output "text")
+if [ -z "$(existe_vpc)" ]; then
+    echo "Criando VPC..."
+    VPC_ID=$(aws ec2 create-vpc \
+        --tag-specifications "ResourceType=vpc,Tags=[{Key=Name,Value=$NOME_VPC}]" \
+        --cidr-block "$CIDR_VPC" \
+        --query "Vpc.VpcId" \
+        --output "text") 
+else
+    echo "Vpc $NOME_VPC Já existe!"
+    VPC_ID=existe_vpc 
+fi
 
+if [ -z "$(existe_subnet $NOME_SUBNET_PUBL)" ]; then
+    echo "Criando subnet publica..."
+    SUBNET_PUBL_ID=$(aws ec2 create-subnet \
+        --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$NOME_SUBNET_PUBL}]" \
+        --cidr-block "$CIDR_SUBNET_PUBL" \
+        --vpc-id "$VPC_ID" \
+        --query "Subnet.SubnetId" \
+        --output "text")
+else
+    echo "Subnet $NOME_SUBNET_PUBL já existe!"
+    SUBNET_PUBL_ID=existe_subnet "$NOME_SUBNET_PUBL"
+fi
+
+if [ -z "$(existe_subnet "$NOME_SUBNET_PRIV")" ]; then
+    echo "Criando subnet privada..."
+    SUBNET_PRIV_ID=$(aws ec2 create-subnet \
+        --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=$NOME_SUBNET_PRIV)}]" \
+        --cidr-block "$CIDR_SUBNET_PRIV" \
+        --vpc-id "$VPC_ID" \
+        --query "Subnet.SubnetId" \
+        --output "text")
+else
+    echo "Subnet $NOME_SUBNET_PRIV já existe!"
+    SUBNET_PRIV_ID=existe_subnet "$NOME_SUBNET_PRIV"
+fi
 
 ##### Criacao dos pares de chaves #####
 
-EXISTE_KEY_WEB=$(aws ec2 describe-key-pairs \
-  --key-names "$CHAVE_WEB" \
-  2>/dev/null)
-if [ -z "$EXISTE_KEY_WEB" ]; then
-  echo "Criando Par de Chaves $CHAVE_WEB..."
-  aws ec2 create-key-pair \
-    --key-name "$CHAVE_WEB" \
-    --region "us-east-1" \
-    --query "KeyMaterial" \
-    --output text >"$CHAVE_WEB".pem
-  chmod 400 "$CHAVE_WEB.pem"
-else
-  echo "Par de Chaves $CHAVE_WEB já existe!"
-fi
+criar_chave() {
+    echo "Criando Par de Chaves $1..."
+    aws ec2 create-key-pair \
+        --key-name "$1" \
+        --region "us-east-1" \
+        --query "KeyMaterial" \
+        --output text >"$1".pem
+    chmod 400 "$1.pem"
+}
 
-EXISTE_KEY_DB=$(aws ec2 describe-key-pairs \
-  --key-names "$CHAVE_DB" \
-  2>/dev/null)
-if [ -z "$EXISTE_KEY_DB" ]; then
-  echo "Criando Par de Chaves $CHAVE_DB..."
-  aws ec2 create-key-pair \
-    --key-name "$CHAVE_DB" \
-    --region "us-east-1" \
-    --query "KeyMaterial" \
-    --output text >"$CHAVE_DB".pem
-  chmod 400 "$CHAVE_DB.pem"
-else
-  echo "Par de Chaves $CHAVE_DB já existe!"
-fi
+existe_chave() {
+    aws ec2 describe-key-pairs \
+        --key-names "$1" \
+        2>/dev/null
+}
 
-EXISTE_KEY_API=$(aws ec2 describe-key-pairs \
-  --key-names "$CHAVE_API" \
-  2>/dev/null)
-if [ -z "$EXISTE_KEY_API" ]; then
-  echo "Criando Par de Chaves $CHAVE_API..."
-  aws ec2 create-key-pair \
-    --key-name "$CHAVE_API" \
-    --region "us-east-1" \
-    --query "KeyMaterial" \
-    --output text >"$CHAVE_API".pem
-  chmod 400 "$CHAVE_API.pem"
-else
-  echo "Par de Chaves $CHAVE_API já existe!"
-fi
+chaves=("$CHAVE_WEB" "$CHAVE_DB" "$CHAVE_API")
 
-##### Criacao das ec2 #####
+for chave in "${chaves[@]}"; do
+    if [ -z "$(existe_chave "$chave")" ]; then
+        criar_chave "$chave"
+    else
+        echo "Par de Chaves $chave já existe!"
+    fi
+done
+
+##### Criacao dos grupos de seguranca #####
 
 echo "Criando grupos de segurança..."
 SG_SSH_PUBL_ID=$(aws ec2 create-security-group \
@@ -124,6 +131,8 @@ aws ec2 authorize-security-group-ingress \
     --no-cli-pager \
     --ip-permissions \
     IpProtocol=tcp,FromPort=8080,ToPort=8080,IpRanges="[{CidrIp=0.0.0.0/0}]"
+
+##### Criacao das ec2 #####
 
 # servidor publico
 EXISTE_WEB=$(aws ec2 describe-instances \
