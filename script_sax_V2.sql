@@ -95,10 +95,10 @@ CREATE TABLE material (
 -- tabelas de pedido (relacionamentos muitos para muitos) e escala da saída
 CREATE TABLE pedido_entrada (
     fornecedor_id INT,
-    material_id INT
+    material_id INT,
     quantidade INT,
     data_entrada DATE,
-    PRIMARY KEY (fornecedor_id, material_id, historico_entrada_id),
+    PRIMARY KEY (fornecedor_id, material_id),
     CONSTRAINT fk_ped_ent_fornecedor FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id),
     CONSTRAINT fk_ped_ent_material FOREIGN KEY (material_id) REFERENCES material(id)
 );
