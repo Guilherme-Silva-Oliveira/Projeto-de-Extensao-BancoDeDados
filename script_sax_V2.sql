@@ -1,4 +1,4 @@
-CREATE DATABASE sax_bd;
+CREATE DATABASE IF NOT EXISTS sax_bd;
 USE sax_bd;
 
 -- class app
@@ -42,7 +42,7 @@ CREATE TABLE tipo_limite (
     tipo VARCHAR(45)
 );
 
-CREATE TABLE limites (
+CREATE TABLE limite (
     id INT AUTO_INCREMENT PRIMARY KEY,
     limite VARCHAR(45),
     tipo_limite_id INT,
@@ -51,9 +51,7 @@ CREATE TABLE limites (
 
 CREATE TABLE almoxarifado (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    limites_id INT,
-    numero_sala INT,
-    CONSTRAINT fk_almoxarifado_limites FOREIGN KEY (limites_id) REFERENCES limites(id)
+    numero_sala INT
 );
 
 CREATE TABLE almoxarife (
@@ -85,9 +83,11 @@ CREATE TABLE material (
     nome_material VARCHAR(45),
     unidade_medida_id INT,
     quantidade INT,
+    limite_id INT,
     CONSTRAINT fk_material_categoria FOREIGN KEY (categoria_id) REFERENCES categoria(id),
     CONSTRAINT fk_material_almoxarifado FOREIGN KEY (almoxarifado_id) REFERENCES almoxarifado(id),
-    CONSTRAINT fk_material_unidade FOREIGN KEY (unidade_medida_id) REFERENCES unidade_medida(id)
+    CONSTRAINT fk_material_unidade FOREIGN KEY (unidade_medida_id) REFERENCES unidade_medida(id),
+    CONSTRAINT fk_material_limite FOREIGN KEY (limite_id) REFERENCES limite(id)
 );
 
 -- Entradas e Saídas
