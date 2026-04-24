@@ -228,7 +228,7 @@ aws ec2 create-route \
 ##### Criando NAT gateway #####
 
 echo "Criando ip elastico..."
-ALLOC_ID=$(aws ec2 allocate-address \
+ALLOC_ID=$(aws ec2 allocate-address \z
     --query "AllocationId" \
     --output text)
 
