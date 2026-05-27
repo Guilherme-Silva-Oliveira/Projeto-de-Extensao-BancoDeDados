@@ -1,3 +1,4 @@
+ drop database if exists sax_bd;
 CREATE DATABASE IF NOT EXISTS sax_bd;
 USE sax_bd;
 
@@ -126,7 +127,28 @@ CREATE TABLE pedido_saida (
     CONSTRAINT fk_ped_sai_escala FOREIGN KEY (escala_id) REFERENCES escala(id)
 );
 
+CREATE TABLE inteligencia_artificial(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    nome_modelo VARCHAR(45),
+    tokens_utilizados BIGINT,
+    ultima_utilizacao DATETIME
+    );
+    
+INSERT INTO inteligencia_artificial (nome_modelo, tokens_utilizados, ultima_utilizacao) VALUES
+('Modelo 01', 1250000, '2026-05-26 14:30:00'),
+('Modelo 02', 850300, '2026-05-26 15:45:12'),
+('llama-3.3-70b-versatile', 3200100, '2026-05-26 18:20:42'),
+('chat gpt', 450000, '2026-05-25 09:15:30');
+
+
 -- CADASTROS
 select * from solicitacao;
 insert into almoxarifado (numero_sala) values (1);
 insert into almoxarife (almoxarifado_id,nome,email,senha) values (1,"Guilherme Silva","guilherme@gmail.com","$2a$10$3uzNYzkwgxBp9Pt9bPjAMu3PLJNPTlcMMm5vG9rLUTAzxWpOBIkDK");
+insert into categoria (nome_categoria) values ('categoria');
+insert into unidade_medida (nome_unidade) values ('unidade');
+insert into almoxarifado (numero_sala) values (123);
+
+select * from material;
+
+select * from almoxarife;
