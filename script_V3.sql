@@ -19,6 +19,7 @@ CREATE TABLE solicitacao (
     professor_id INT,
     descricao VARCHAR(45),
     data_solicitacao DATE,
+    is_aceito BOOLEAN default 0,
     CONSTRAINT fk_solicitacao_professor FOREIGN KEY (professor_id) REFERENCES professor(id)
 );
 
