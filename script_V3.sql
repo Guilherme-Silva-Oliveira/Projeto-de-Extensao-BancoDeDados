@@ -11,6 +11,9 @@ CREATE TABLE professor (
     telefone VARCHAR(45)
 );
 
+insert professor(nome, email, telefone) values("Pedro Ferro", "Pedro@Xingu.com", "11945638342");
+
+
 CREATE TABLE solicitacao (
     id INT AUTO_INCREMENT PRIMARY KEY,
     professor_id INT,
@@ -105,6 +108,7 @@ CREATE TABLE pedido_entrada (
     material_id INT,
     quantidade INT,
     data_entrada DATE,
+    is_devolucao boolean default 0, 
     PRIMARY KEY (fornecedor_id, material_id),
     CONSTRAINT fk_ped_ent_fornecedor FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id),
     CONSTRAINT fk_ped_ent_material FOREIGN KEY (material_id) REFERENCES material(id)
@@ -114,6 +118,9 @@ CREATE TABLE escala (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome_escala VARCHAR(45)
 );
+
+insert into escala(nome_escala) values ("Média");
+
 
 CREATE TABLE pedido_saida (
     material_id INT,
@@ -148,7 +155,8 @@ insert into almoxarife (almoxarifado_id,nome,email,senha) values (1,"Guilherme S
 insert into categoria (nome_categoria) values ('categoria');
 insert into unidade_medida (nome_unidade) values ('unidade');
 insert into almoxarifado (numero_sala) values (123);
+select * from codigo_barras;
 
 select * from material;
-
 select * from almoxarife;
+select * from escala;
