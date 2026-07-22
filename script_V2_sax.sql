@@ -124,6 +124,7 @@ CREATE TABLE solicitacao (
     descricao VARCHAR(45) NOT NULL,
     data_solicitacao DATETIME NOT NULL,
     data_para_envio DATETIME NOT NULL,
+    alerta VARCHAR(255),
     CONSTRAINT fk_solicitacao_professor FOREIGN KEY (professor_id) REFERENCES professor(id),
     CONSTRAINT fk_solicitacao_motivo FOREIGN KEY (motivo_id) REFERENCES motivo(id)
 );
@@ -162,6 +163,14 @@ CREATE TABLE status_historico (
     desc_status VARCHAR(45) NOT NULL
 );
 
+CREATE TABLE alerta_solicitacao (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    solicitacao_id INT,
+    descricao VARCHAR(255) NOT NULL,
+    resolvido TINYINT(1) NOT NULL,
+    CONSTRAINT fk_solicitacao_alerta FOREIGN KEY (solicitacao_id) REFERENCES solicitacao(id)
+);
+
 -- CADASTROS
 INSERT INTO almoxarifado (numero_sala) VALUES (123);
 INSERT INTO almoxarife (almoxarifado_id, nome, email, telefone, senha) VALUES
@@ -192,3 +201,4 @@ SELECT * FROM lista_material;
 SELECT * FROM historico;
 SELECT * FROM status_historico;
 SELECT * FROM alerta_devolucao;
+SELECT * FROM alerta_solicitacao;
