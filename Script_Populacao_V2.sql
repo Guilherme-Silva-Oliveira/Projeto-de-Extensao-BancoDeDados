@@ -72,10 +72,10 @@ INSERT INTO fornecedor (tipo_fornecedor_id, nome, email, telefone) VALUES
 
 -- Tabela: almoxarife (Depende de: almoxarifado)
 -- Almoxarifados disponíveis: 1 (sala 123 - Guilherme), 2 (sala 101), 3 (sala 202), 4 (sala 303)
-INSERT INTO almoxarife (almoxarifado_id, nome, email, telefone, senha) VALUES
-(2, 'Mariana Costa', 'mariana.almoxarife@gmail.com', '11911112222', '$2a$10$3uzNYzkwgxBp9Pt9bPjAMu3PLJNPTlcMMm5vG9rLUTAzxWpOBIkDK'),
-(3, 'Rodrigo Souza', 'rodrigo.almoxarife@gmail.com', '11922223333', '$2a$10$3uzNYzkwgxBp9Pt9bPjAMu3PLJNPTlcMMm5vG9rLUTAzxWpOBIkDK'),
-(4, 'Camila Ribeiro', 'camila.almoxarife@gmail.com', '11933334444', '$2a$10$3uzNYzkwgxBp9Pt9bPjAMu3PLJNPTlcMMm5vG9rLUTAzxWpOBIkDK');
+INSERT INTO almoxarife (almoxarifado_id, nome, email, telefone, senha, role) VALUES
+(2, 'Mariana Costa', 'mariana.almoxarife@gmail.com', '11911112222', '$2a$10$3uzNYzkwgxBp9Pt9bPjAMu3PLJNPTlcMMm5vG9rLUTAzxWpOBIkDK', 'ALMOXARIFE'),
+(3, 'Rodrigo Souza', 'rodrigo.almoxarife@gmail.com', '11922223333', '$2a$10$3uzNYzkwgxBp9Pt9bPjAMu3PLJNPTlcMMm5vG9rLUTAzxWpOBIkDK', 'ALMOXARIFE'),
+(4, 'Camila Ribeiro', 'camila.almoxarife@gmail.com', '11933334444', '$2a$10$3uzNYzkwgxBp9Pt9bPjAMu3PLJNPTlcMMm5vG9rLUTAzxWpOBIkDK', 'ADMIN');
 
 -- -------------------------------------------------------------------------
 -- 3. MATERIAIS, LIMITES E CÓDIGOS DE BARRAS

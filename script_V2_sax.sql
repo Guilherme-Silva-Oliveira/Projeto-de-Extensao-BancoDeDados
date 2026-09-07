@@ -51,6 +51,7 @@ CREATE TABLE almoxarife (
     email VARCHAR(45) NOT NULL,
     telefone VARCHAR(45) NOT NULL,
     senha VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'ALMOXARIFE',
     CONSTRAINT fk_almoxarife_almoxarifado FOREIGN KEY (almoxarifado_id) REFERENCES almoxarifado(id)
 );
 
