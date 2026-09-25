@@ -112,13 +112,13 @@ CREATE TABLE codigo_barras (
 );
 
 CREATE TABLE pedido_entrada (
+	id INT PRIMARY KEY AUTO_INCREMENT,
 	professor_id INT,
     fornecedor_id INT NOT NULL,
     material_id INT NOT NULL,
     quantidade INT NOT NULL,
     data_entrada DATETIME NOT NULL,
     is_devolucao BOOLEAN DEFAULT 0,
-    PRIMARY KEY (fornecedor_id, material_id),
     CONSTRAINT fk_pedido_entrada_fornecedor FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id),
     CONSTRAINT fk_pedido_entrada_material FOREIGN KEY (material_id) REFERENCES material(id)
 );
