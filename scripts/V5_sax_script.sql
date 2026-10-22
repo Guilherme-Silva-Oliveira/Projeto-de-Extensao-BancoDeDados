@@ -153,6 +153,7 @@ CREATE TABLE historico (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     solicitacao_id INT NOT NULL,
     data_alteracao DATETIME NOT NULL,
+    motivo_reprovacao VARCHAR(500) NOT NULL,
     status_solicitacao VARCHAR(45) NOT NULL,
     CONSTRAINT fk_solicitacao_historico FOREIGN KEY (solicitacao_id) REFERENCES solicitacao(id)
 );
@@ -535,49 +536,6 @@ VALUES
 (10, 2, 0, 0, 50);
 
 -- =====================================================
--- 13. HISTÓRICO DE STATUS
--- =====================================================
-
-INSERT INTO historico
-(solicitacao_id, data_alteracao, status_solicitacao) VALUES
-
-(1, '2026-10-10 08:00:00', 'RECEBIDA'),
-(1, '2026-10-10 08:30:00', 'ACEITA'),
-(1, '2026-10-10 09:00:00', 'PENDENTE_ENTREGA'),
-(1, '2026-10-11 09:00:00', 'FINALIZADA'),
-
-(2, '2026-10-10 09:30:00', 'RECEBIDA'),
-(2, '2026-10-10 10:00:00', 'ACEITA'),
-(2, '2026-10-11 08:00:00', 'PENDENTE_ENTREGA'),
-
-(3, '2026-10-11 10:00:00', 'RECEBIDA'),
-(3, '2026-10-11 11:00:00', 'ACEITA'),
-(3, '2026-10-12 09:00:00', 'PENDENTE_DEVOLUÇÃO'),
-
-(4, '2026-10-12 11:00:00', 'RECEBIDA'),
-(4, '2026-10-12 11:30:00', 'REJEITADA'),
-
-(5, '2026-10-13 14:00:00', 'RECEBIDA'),
-(5, '2026-10-13 15:00:00', 'CANCELADA'),
-
-(6, '2026-10-14 08:30:00', 'RECEBIDA'),
-(6, '2026-10-14 09:00:00', 'ACEITA'),
-(6, '2026-10-15 10:00:00', 'PENDENTE_DEVOLUÇÃO'),
-
-(7, '2026-10-15 09:00:00', 'RECEBIDA'),
-(7, '2026-10-15 09:30:00', 'ACEITA'),
-(7, '2026-10-16 14:00:00', 'FINALIZADA'),
-
-(8, '2026-10-16 10:00:00', 'RECEBIDA'),
-(8, '2026-10-16 11:00:00', 'PRAZO_EXPIRADO'),
-
-(9, '2026-10-17 08:00:00', 'RECEBIDA'),
-(9, '2026-10-17 08:30:00', 'ACEITA'),
-(9, '2026-10-18 09:00:00', 'PENDENTE_DEVOLUÇÃO'),
-
-(10, '2026-10-18 13:00:00', 'RECEBIDA');
-
--- =====================================================
 -- 14. ALERTAS DE DEVOLUÇÃO
 -- =====================================================
 
@@ -626,7 +584,7 @@ INSERT INTO alerta_verificacao
 ('PRAZO', 'Solicitacao com prazo expirado',
  'Verificar se a solicitacao ainda deve ser atendida', '2026-10-18 10:00:00', 8),
 
-('DEVOLUCAO', 'Equipamentos ainda nao devolvidos',
+('DEVOLUCAO', 'Equipamentos ainda nao devolvidos',48
  'Confirmar retorno dos equipamentos de manutencao', '2026-10-18 10:30:00', 6),
 
 ('ESTOQUE', 'Verificacao de materiais para reposicao',
