@@ -153,7 +153,7 @@ CREATE TABLE historico (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     solicitacao_id INT NOT NULL,
     data_alteracao DATETIME NOT NULL,
-    motivo_reprovacao VARCHAR(500) NOT NULL,
+    motivo_reprovacao VARCHAR(500),
     status_solicitacao VARCHAR(45) NOT NULL,
     CONSTRAINT fk_solicitacao_historico FOREIGN KEY (solicitacao_id) REFERENCES solicitacao(id)
 );
@@ -549,43 +549,5 @@ INSERT INTO alerta_devolucao
 (1, 1, 'Solicitacao sem devolucao obrigatoria', 1),
 (7, 7, 'Materiais de consumo entregues', 1);
 
--- =====================================================
--- 15. ALERTAS DE SOLICITAÇÃO
--- =====================================================
-
-INSERT INTO alerta_solicitacao
-(solicitacao_id, descricao, resolvido) VALUES
-(3, 'Conferir quantidade de materiais de laboratorio', 0),
-(4, 'Solicitacao rejeitada: revisar disponibilidade', 1),
-(5, 'Solicitacao cancelada pelo solicitante', 1),
-(6, 'Confirmar devolucao dos equipamentos', 0),
-(8, 'Prazo de retirada expirado', 0),
-(9, 'Devolucao obrigatoria ainda pendente', 0),
-(10, 'Aguardando analise do almoxarifado', 0);
-
--- =====================================================
--- 16. ALERTAS DE VERIFICAÇÃO
--- =====================================================
-
-INSERT INTO alerta_verificacao
-(tipo, nome, descricao, data_criacao, solicitacao_id) VALUES
-('ESTOQUE', 'Estoque baixo de detergente',
- 'Quantidade proxima do limite minimo', '2026-10-18 08:00:00', NULL),
-
-('VALIDADE', 'Validade do alcool 70',
- 'Verificar validade antes de distribuir o material', '2026-10-18 08:15:00', NULL),
-
-('DEVOLUCAO', 'Devolucao de equipamentos pendente',
- 'Conferir mouse e teclado emprestados', '2026-10-18 09:00:00', 2),
-
-('SOLICITACAO', 'Solicitacao com materiais de laboratorio',
- 'Conferir disponibilidade antes da entrega', '2026-10-18 09:30:00', 3),
-
-('PRAZO', 'Solicitacao com prazo expirado',
- 'Verificar se a solicitacao ainda deve ser atendida', '2026-10-18 10:00:00', 8),
-
-('DEVOLUCAO', 'Equipamentos ainda nao devolvidos',48
- 'Confirmar retorno dos equipamentos de manutencao', '2026-10-18 10:30:00', 6),
-
-('ESTOQUE', 'Verificacao de materiais para reposicao',
- 'Conferir estoque de papel e canetas', '2026-10-18 11:00:00', 10);
+select * from solicitacao;
+select * from historico;
