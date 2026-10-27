@@ -98,13 +98,6 @@ CREATE TABLE limite (
     CONSTRAINT fk_limite_material FOREIGN KEY (material_id) REFERENCES material(id)
 );
 
-CREATE TABLE codigo_barras (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    codigo VARCHAR(100) NOT NULL,
-    material_id INT NOT NULL,
-    CONSTRAINT fk_codigo_barras_material FOREIGN KEY (material_id) REFERENCES material(id)
-);
-
 CREATE TABLE pedido_entrada (
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	professor_id INT,
@@ -216,7 +209,6 @@ SELECT * FROM tipo_fornecedor;
 SELECT * FROM fornecedor;
 SELECT * FROM unidade_medida;
 SELECT * FROM material;
-SELECT * FROM codigo_barras;
 SELECT * FROM pedido_entrada;
 SELECT * FROM professor;
 SELECT * FROM motivo;
@@ -402,30 +394,6 @@ INSERT INTO limite (desc_limite, limite, material_id) VALUES
 ('Estoque minimo', 15, 18);
 
 -- =====================================================
--- 9. CÓDIGOS DE BARRAS
--- =====================================================
-
-INSERT INTO codigo_barras (codigo, material_id) VALUES
-('7891000000001', 1),
-('7891000000002', 2),
-('7891000000003', 3),
-('7891000000004', 4),
-('7891000000005', 5),
-('7891000000006', 6),
-('7891000000007', 7),
-('7891000000008', 8),
-('7891000000009', 9),
-('7891000000010', 10),
-('7891000000011', 11),
-('7891000000012', 12),
-('7891000000013', 13),
-('7891000000014', 14),
-('7891000000015', 15),
-('7891000000016', 16),
-('7891000000017', 17),
-('7891000000018', 18);
-
--- =====================================================
 -- 10. ENTRADAS DE MATERIAIS
 -- =====================================================
 
@@ -445,109 +413,3 @@ INSERT INTO pedido_entrada
 (NULL, 5, 13, 10, '2026-10-08 10:15:00', 0),
 (NULL, 6, 18, 30, '2026-10-09 15:00:00', 0);
 
--- =====================================================
--- 11. SOLICITAÇÕES
--- =====================================================
-
-INSERT INTO solicitacao
-(professor_id, motivo_id, materiais, inteligencia_artificial_id,
- descricao, data_solicitacao, data_para_envio, alerta) VALUES
-
-(1, 1, 'Papel A4: 2; Caneta azul: 10',
- 1, 'Materiais para aula',
- '2026-10-10 08:00:00', '2026-10-11 09:00:00', NULL),
-
-(2, 3, 'Mouse USB: 5; Teclado USB: 3',
- 1, 'Projeto de informatica',
- '2026-10-10 09:30:00', '2026-10-12 10:00:00', NULL),
-
-(3, 7, 'Bequer 250ml: 10; Proveta 100ml: 5; Luvas descartaveis: 2',
- 1, 'Experimento quimico',
- '2026-10-11 10:00:00', '2026-10-13 13:00:00',
- 'Verificar disponibilidade dos materiais'),
-
-(4, 4, 'Caneta azul: 20; Lapis grafite: 15; Borracha branca: 10',
- 1, 'Avaliacao escolar',
- '2026-10-12 11:00:00', '2026-10-13 08:00:00', NULL),
-
-(5, 5, 'Papel A4: 5; Marcador quadro: 5',
- 1, 'Preparacao de evento',
- '2026-10-13 14:00:00', '2026-10-15 09:00:00', NULL),
-
-(6, 6, 'Mouse USB: 2; Extensao eletrica: 2',
- 1, 'Manutencao do laboratorio',
- '2026-10-14 08:30:00', '2026-10-15 10:00:00',
- 'Conferir equipamentos apos utilizacao'),
-
-(7, 1, 'Tinta guache: 4; Pincel escolar: 10',
- 1, 'Atividade de artes',
- '2026-10-15 09:00:00', '2026-10-16 14:00:00', NULL),
-
-(8, 8, 'Grampeador: 2; Grampo metalico: 3',
- 1, 'Reposicao administrativa',
- '2026-10-16 10:00:00', '2026-10-17 09:00:00', NULL),
-
-(1, 7, 'Bequer 250ml: 5; Oculos protecao: 5',
- 1, 'Aula de laboratorio',
- '2026-10-17 08:00:00', '2026-10-18 09:00:00',
- 'Devolucao obrigatoria dos itens reutilizaveis'),
-
-(3, 2, 'Papel A4: 100; Caneta azul: 50',
- 1, 'Reposicao de materiais',
- '2026-10-18 13:00:00', '2026-10-20 08:00:00', NULL);
-
--- =====================================================
--- 12. ITENS DE CADA SOLICITAÇÃO
--- =====================================================
-
-INSERT INTO lista_material
-(solicitacao_id, material_id, reservado, deve_devolver, quantidade)
-VALUES
-(1, 1, 1, 0, 2),
-(1, 2, 1, 0, 10),
-
-(2, 7, 1, 1, 5),
-(2, 8, 1, 1, 3),
-
-(3, 9, 1, 1, 10),
-(3, 10, 1, 1, 5),
-(3, 11, 1, 0, 2),
-
-(4, 2, 1, 0, 20),
-(4, 3, 1, 0, 15),
-(4, 4, 1, 0, 10),
-
-(5, 1, 1, 0, 5),
-(5, 18, 1, 0, 5),
-
-(6, 7, 1, 1, 2),
-(6, 17, 1, 1, 2),
-
-(7, 5, 1, 0, 4),
-(7, 6, 1, 0, 10),
-
-(8, 14, 1, 1, 2),
-(8, 15, 1, 0, 3),
-
-(9, 9, 1, 1, 5),
-(9, 16, 1, 1, 5),
-
-(10, 1, 0, 0, 100),
-(10, 2, 0, 0, 50);
-
--- =====================================================
--- 14. ALERTAS DE DEVOLUÇÃO
--- =====================================================
-
-INSERT INTO alerta_devolucao
-(solicitacao_id, professor_id, descricao, devolvido) VALUES
-(2, 2, 'Mouse e teclado aguardando devolucao', 0),
-(3, 3, 'Materiais de laboratorio com devolucao pendente', 0),
-(6, 6, 'Equipamentos utilizados em manutencao', 0),
-(8, 8, 'Grampeadores emprestados aguardando retorno', 0),
-(9, 1, 'Bequeres e oculos de protecao aguardando devolucao', 0),
-(1, 1, 'Solicitacao sem devolucao obrigatoria', 1),
-(7, 7, 'Materiais de consumo entregues', 1);
-
-select * from solicitacao;
-select * from historico;
