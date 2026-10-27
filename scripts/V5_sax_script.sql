@@ -393,23 +393,6 @@ INSERT INTO limite (desc_limite, limite, material_id) VALUES
 ('Estoque minimo', 5, 17),
 ('Estoque minimo', 15, 18);
 
--- =====================================================
--- 10. ENTRADAS DE MATERIAIS
--- =====================================================
-
-INSERT INTO pedido_entrada
-(professor_id, fornecedor_id, material_id, quantidade,
- data_entrada, is_devolucao) VALUES
-(NULL, 1, 1, 50, '2026-10-01 09:00:00', 0),
-(NULL, 2, 2, 100, '2026-10-02 10:30:00', 0),
-(NULL, 2, 3, 80, '2026-10-03 11:00:00', 0),
-(NULL, 1, 4, 40, '2026-10-04 08:45:00', 0),
-(NULL, 6, 5, 20, '2026-10-05 14:00:00', 0),
-(NULL, 3, 7, 15, '2026-10-06 09:15:00', 0),
-(NULL, 3, 8, 10, '2026-10-06 09:20:00', 0),
-(NULL, 4, 9, 20, '2026-10-07 13:00:00', 0),
-(NULL, 4, 10, 10, '2026-10-07 13:10:00', 0),
-(NULL, 5, 12, 12, '2026-10-08 10:00:00', 0),
-(NULL, 5, 13, 10, '2026-10-08 10:15:00', 0),
-(NULL, 6, 18, 30, '2026-10-09 15:00:00', 0);
-
+select * from alerta_solicitacao;
+select * from alerta_devolucao;
+select * from alerta_verificacao;
